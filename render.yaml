@@ -1,3 +1,4 @@
+version: 1
 services:
   # Backend FastAPI Service
   - type: web
@@ -20,30 +21,13 @@ services:
       - key: JWT_SECRET
         generateValue: true
 
-  # Frontend Vite Service
-  - type: web
-    name: youth-hub-frontend
-    env: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        fromService:
-          type: web
-          name: youth-hub-backend
-          property: url
-    routes:
-      - type: rewrite
-        source: /(.*)
-        destination: /index.html
+  # Managed Redis Service
+  - type: redis
+    name: youth-hub-redis
+    plan: free
+    ipAllowList: []
 
-# Managed Databases
+# Managed Database
 databases:
   - name: youth-hub-db
     plan: free
-
-# Managed Redis
-redis:
-  - name: youth-hub-redis
-    plan: free
-    ipAllowList: [] # Only allow internal connections
