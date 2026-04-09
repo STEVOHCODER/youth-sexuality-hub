@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.29.1/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800 font-inter flex items-center justify-center h-screen">
+    <div class="w-full max-w-md p-4 bg-white rounded-lg shadow-md overflow-hidden sm:p-6">
+        <h2 class="text-xl font-bold mb-4">Calculator</h2>
+        <input type="number" id="display" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 mt-4" readonly placeholder="0">
+        <div class="flex items-center justify-between mt-6">
+            <button onclick="appendNumber('7')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">7</button>
+            <button onclick="appendNumber('8')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">8</button>
+            <button onclick="appendNumber('9')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">9</button>
+            <button onclick="appendOperator('*')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">*</button>
+        </div>
+        <div class="flex items-center justify-between mt-6">
+            <button onclick="appendNumber('4')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">4</button>
+            <button onclick="appendNumber('5')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">5</button>
+            <button onclick="appendNumber('6')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">6</button>
+            <button onclick="appendOperator('-')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">-</button>
+        </div>
+        <div class="flex items-center justify-between mt-6">
+            <button onclick="appendNumber('1')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">1</button>
+            <button onclick="appendNumber('2')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">2</button>
+            <button onclick="appendNumber('3')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">3</button>
+            <button onclick="appendOperator('+')" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">+</button>
+        </div>
+        <div class="flex items-center justify-between mt-6">
+            <button onclick="clearDisplay()" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">C</button>
+            <button onclick="appendNumber('0')" class="w-full px-4 py-2 bg-gray-100 text-gray-800 rounded-lg focus:outline-none focus:border-blue-500 hover:bg-blue-500 hover:text-white">0</button>
+            <button onclick="calculate()" class="px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-blue-500 hover:text-white">=</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/react@17/umd/react.development.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@7.16.8/dist/babel.min.js"></script>
+    <script type="text/babel">
+        const { useState } = React;
+
+        function Calculator() {
+            const [displayValue, setDisplayValue] = useState('0');
+            const [currentNumber, setCurrentNumber] = useState('');
+            const [operator, setOperator] = useState('');
+
+            const appendNumber = (num) => {
+                if (displayValue === '0') {
+                    setDisplayValue(num);
+                } else {
+                    setDisplayValue(displayValue + num);
+                }
+            };
+
+            const appendOperator = (op) => {
+                if (currentNumber !== '') {
+                    setCurrentNumber(parseFloat(currentNumber).toString());
+                }
+                setOperator(op);
+                setDisplayValue('0');
+            };
+
+            const clearDisplay = () => {
+                setDisplayValue('0');
+                setCurrentNumber('');
+                setOperator('');
+            };
+
+            const calculate = () => {
+                if (currentNumber !== '' && operator !== '') {
+                    const num1 = parseFloat(currentNumber);
+                    let result;
+
+                    switch (operator) {
+                        case '+':
+                            result = num1 + parseFloat(displayValue);
+                            break;
+                        case '-':
+                            result = num1 - parseFloat(displayValue);
+                            break;
+                        case '*':
+                            result = num1 * parseFloat(displayValue);
+                            break;
+                        case '/':
+                            if (parseFloat(displayValue) !== 0) {
+                                result = num1 / parseFloat(displayValue);
+                            } else {
+                                alert('Cannot divide by zero!');
+                                return;
+                            }
+                            break;
+                    }
+
+                    setCurrentNumber(result.toString());
+                    setDisplayValue(result.toString());
+                }
+            };
+
+            return (
+                <div>
+                    <input type="text" value={displayValue} readOnly className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 hover:bg-blue-500 hover:text-white mt-4" />
+                    {/* ... existing buttons */}
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<Calculator />);
+    </script>
+</body>
+</html>

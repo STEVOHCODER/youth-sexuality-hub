@@ -1,0 +1,37 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.special import gamma
+
+# Define the domain for x (avoiding strictly 0 for some fractional definitions, though x>=0 is fine here)
+x = np.linspace(0, 2, 500)
+
+# 0th Derivative: f(x) = x
+y0 = x
+
+# 0.5th Derivative: f^(0.5)(x) = ( Gamma(2) / Gamma(1.5) ) * x^(0.5)
+# Note: Gamma(2) = 1, Gamma(1.5) = sqrt(pi) / 2
+y_half = (gamma(2) / gamma(1.5)) * np.sqrt(x)
+
+# 1st Derivative: f'(x) = 1
+y1 = np.ones_like(x)
+
+# Create the plot
+plt.figure(figsize=(10, 6))
+
+plt.plot(x, y0, label=r'0th Derivative: $f(x) = x$', color='blue', linestyle=':')
+plt.plot(x, y_half, label=r'0.5th Derivative: $D^{0.5}[x] = \frac{2}{\sqrt{\pi}}\sqrt{x}$', color='purple', linewidth=2.5)
+plt.plot(x, y1, label=r'1st Derivative: $f''(x) = 1$', color='red', linestyle='--')
+
+# Formatting the graph
+plt.title('Transition from Function to 1st Derivative via Fractional Calculus', fontsize=14)
+plt.xlabel('x', fontsize=12)
+plt.ylabel('y', fontsize=12)
+plt.xlim(0, 2)
+plt.ylim(0, 2)
+plt.axhline(0, color='black',linewidth=1)
+plt.axvline(0, color='black',linewidth=1)
+plt.grid(True, alpha=0.3)
+plt.legend(fontsize=12, loc='upper left')
+
+# Display the plot
+plt.show()

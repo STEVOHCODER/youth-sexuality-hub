@@ -1,0 +1,44 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.special import gamma
+
+# 1. Define the range for x (from 0 to 2)
+x = np.linspace(0, 2, 500)
+
+# 2. Prepare the plot
+plt.figure(figsize=(10, 6))
+
+# 3. Define the derivative orders (alpha) and visual styles
+alphas = [0.0, 0.5, 1.0, 1.5, 2.0]
+colors = ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']
+labels = [
+    r"$\alpha = 0.0$ (Original: $x^2$)",
+    r"$\alpha = 0.5$ (Half-Derivative)",
+    r"$\alpha = 1.0$ (First Deriv: $2x$)",
+    r"$\alpha = 1.5$ (1.5-Derivative)",
+    r"$\alpha = 2.0$ (Second Deriv: $2$)"
+]
+
+# 4. Calculate and plot D^alpha x^2 for each fractional order
+for alpha, color, label in zip(alphas, colors, labels):
+    # Apply the Gamma function formula: D^a x^2 = Gamma(3) / Gamma(3 - a) * x^(2 - a)
+    # Note: np.power handles x=0 and exponent=0 smoothly (yields 1.0)
+    y = (gamma(3) / gamma(3 - alpha)) * (x ** (2 - alpha))
+    
+    # Differentiate line styles for fractional vs integer derivatives
+    linestyle = '--' if alpha % 1 != 0 else '-'
+    plt.plot(x, y, label=label, color=color, linewidth=2.5, linestyle=linestyle)
+
+# 5. Format the graph
+plt.title('Fractional Derivative Spectrum of f(x) = x²', fontsize=14, fontweight='bold')
+plt.xlabel('x value', fontsize=12)
+plt.ylabel(r'$D^\alpha f(x)$', fontsize=12)
+plt.ylim(0, 4)
+plt.xlim(0, 2)
+plt.grid(True, linestyle=':', alpha=0.7)
+plt.legend(loc='lower right', fontsize=11)
+
+# 6. Save and display the plot
+plt.tight_layout()
+plt.savefig('fractional_derivatives.png', dpi=300)
+plt.show()

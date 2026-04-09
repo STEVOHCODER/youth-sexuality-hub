@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractional Derivative Spectrum Preview</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .preview-container {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 900px;
+            max-width: 95vw;
+            text-align: center;
+        }
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        p.subtitle {
+            color: #7f8c8d;
+            margin-bottom: 25px;
+        }
+        .canvas-wrapper {
+            position: relative;
+            height: 500px;
+            width: 100%;
+        }
+        button {
+            margin-top: 25px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            box-shadow: 0 4px 6px rgba(52, 152, 219, 0.2);
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="preview-container">
+        <h2>Fractional Derivative Spectrum</h2>
+        <p class="subtitle">Evaluating D<sup>&alpha;</sup> for f(x) = x² as the derivative order &alpha; transitions from 0 to 2</p>
+        
+        <div class="canvas-wrapper">
+            <canvas id="previewChart"></canvas>
+        </div>
+        
+        <button id="downloadBtn">Download as PNG</button>
+    </div>
+
+    <script>
+        // Mathematical Constants & Gamma evaluation for f(x) = x^2
+        // D^a x^2 = (Gamma(3) / Gamma(3 - a)) * x^(2 - a)
+        // Gamma(3) = 2. Gamma(3 - 0.5) = Gamma(2.5) = (3/4)*sqrt(PI)
+        // Gamma(3 - 1.5) = Gamma(1.5) = (1/2)*sqrt(PI)
+        
+        const SQRT_PI = Math.sqrt(Math.PI);
+        
+        const xValues = [];
+        const dataAlpha0 = [];   // a = 0.0
+        const dataAlpha05 = [];  // a = 0.5
+        const dataAlpha1 = [];   // a = 1.0
+        const dataAlpha15 = [];  // a = 1.5
+        const dataAlpha2 = [];   // a = 2.0
+
+        for (let x = 0; x <= 2.05; x += 0.05) {
+            xValues.push(x.toFixed(2));
+            dataAlpha0.push(Math.pow(x, 2));                               // alpha = 0: x^2
+            dataAlpha05.push((8 / (3 * SQRT_PI)) * Math.pow(x, 1.5));      // alpha = 0.5: (8/(3√π))x^1.5
+            dataAlpha1.push(2 * x);                                        // alpha = 1: 2x
+            dataAlpha15.push((4 / SQRT_PI) * Math.pow(x, 0.5));            // alpha = 1.5: (4/√π)x^0.5
+            dataAlpha2.push(2);                                            // alpha = 2: 2
+        }
+
+        const ctx = document.getElementById('previewChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: xValues,
+                datasets: [
+                    {
+                        label: 'α = 0.0 (Original: x²)',
+                        data: dataAlpha0,
+                        borderColor: '#440154', // Dark Purple
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'α = 0.5 (Half-Derivative)',
+                        data: dataAlpha05,
+                        borderColor: '#3b528b', // Blue
+                        borderWidth: 3,
+                        borderDash: [6, 4],
+                        pointRadius: 0,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'α = 1.0 (First Deriv: 2x)',
+                        data: dataAlpha1,
+                        borderColor: '#21918c', // Teal
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'α = 1.5 (1.5-Derivative)',
+                        data: dataAlpha15,
+                        borderColor: '#5ec962', // Green
+                        borderWidth: 3,
+                        borderDash: [6, 4],
+                        pointRadius: 0,
+                        tension: 0.4
+                    },
+                    {
+                        label: 'α = 2.0 (Second Deriv: 2)',
+                        data: dataAlpha2,
+                        borderColor: '#fde725', // Yellow
+                        borderWidth: 3,
+                        pointRadius: 0,
+                        tension: 0.4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'x', font: { size: 14, weight: 'bold' } },
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    },
+                    y: {
+                        title: { display: true, text: 'D^α f(x)', font: { size: 14, weight: 'bold' } },
+                        min: 0,
+                        max: 4,
+                        grid: { color: 'rgba(0,0,0,0.05)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: {
+                            font: { size: 13, family: "'Segoe UI', sans-serif" },
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(44, 62, 80, 0.9)',
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 13 },
+                        padding: 12,
+                        cornerRadius: 8
+                    }
+                }
+            }
+        });
+
+        // Exact required download logic
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'chart.png';
+            link.href = document.querySelector('canvas').toDataURL('image/png');
+            link.click();
+        });
+    </script>
+</body>
+</html>

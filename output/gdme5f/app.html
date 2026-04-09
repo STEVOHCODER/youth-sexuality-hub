@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architectural Computational Engine v2.0</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --calc-bg: #161b22;
+            --screen-bg: #090c10;
+            --btn-bg: #21262d;
+            --btn-hover: #30363d;
+            --btn-active: #8b949e;
+            --accent-color: #58a6ff;
+            --danger-color: #f85149;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: var(--text-primary);
+        }
+
+        .calculator {
+            background-color: var(--calc-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            width: 340px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .display {
+            background-color: var(--screen-bg);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: right;
+            border: 1px solid #30363d;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 80px;
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+
+        .previous-operand {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            min-height: 1.2rem;
+        }
+
+        .current-operand {
+            color: var(--text-primary);
+            font-size: 2.5rem;
+            font-weight: 300;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+
+        button {
+            cursor: pointer;
+            font-size: 1.2rem;
+            border: 1px solid #30363d;
+            outline: none;
+            background-color: var(--btn-bg);
+            color: var(--text-primary);
+            padding: 16px;
+            border-radius: 8px;
+            transition: all 0.1s ease-in-out;
+            font-family: 'Consolas', monospace;
+        }
+
+        button:hover { background-color: var(--btn-hover); }
+        button:active { background-color: var(--btn-active); transform: scale(0.96); }
+
+        .span-2 { grid-column: span 2; }
+        
+        .operator { color: var(--accent-color); font-weight: bold; background-color: rgba(88, 166, 255, 0.1); }
+        .operator:hover { background-color: rgba(88, 166, 255, 0.2); }
+        
+        .action { color: var(--danger-color); background-color: rgba(248, 81, 73, 0.1); }
+        .action:hover { background-color: rgba(248, 81, 73, 0.2); }
+
+        .equals { background-color: var(--accent-color); color: #ffffff; border: none; }
+        .equals:hover { background-color: #3182ce; }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="display">
+            <div class="previous-operand" id="previous-operand"></div>
+            <div class="current-operand" id="current-operand">0</div>
+        </div>
+        <div class="keypad">
+            <!-- Scientific Row -->
+            <button class="operator" onclick="calc.computeUnary('sin')" title="Sine (Degrees)">sin()</button>
+            <button class="operator" onclick="calc.computeUnary('cos')" title="Cosine (Degrees)">cos()</button>
+            <button class="operator" onclick="calc.computeUnary('sqrt')">√x</button>
+            <button class="operator" onclick="calc.chooseOperation('^')">xʸ</button>
+
+            <!-- Action Row -->
+            <button class="action span-2" onclick="calc.clear()">AC</button>
+            <button class="action" onclick="calc.delete()">DEL</button>
+            <button class="operator" onclick="calc.chooseOperation('÷')">÷</button>
+
+            <!-- Numbers & Operators -->
+            <button onclick="calc.appendNumber('7')">7</button>
+            <button onclick="calc.appendNumber('8')">8</button>
+            <button onclick="calc.appendNumber('9')">9</button>
+            <button class="operator" onclick="calc.chooseOperation('×')">×</button>
+
+            <button onclick="calc.appendNumber('4')">4</button>
+            <button onclick="calc.appendNumber('5')">5</button>
+            <button onclick="calc.appendNumber('6')">6</button>
+            <button class="operator" onclick="calc.chooseOperation('-')">-</button>
+
+            <button onclick="calc.appendNumber('1')">1</button>
+            <button onclick="calc.appendNumber('2')">2</button>
+            <button onclick="calc.appendNumber('3')">3</button>
+            <button class="operator" onclick="calc.chooseOperation('+')">+</button>
+
+            <button onclick="calc.appendNumber('0')" class="span-2">0</button>
+            <button onclick="calc.appendNumber('.')">.</button>
+            <button class="equals" onclick="calc.compute()">=</button>
+        </div>
+    </div>
+
+    <script>
+        class ScientificCalculator {
+            constructor(previousElement, currentElement) {
+                this.previousElement = previousElement;
+                this.currentElement = currentElement;
+                this.clear();
+            }
+
+            clear() {
+                this.currentOperand = '0';
+                this.previousOperand = '';
+                this.operation = undefined;
+                this.updateDisplay();
+            }
+
+            delete() {
+                if (this.currentOperand === 'Error') return this.clear();
+                if (this.currentOperand.length === 1 || (this.currentOperand.length === 2 && this.currentOperand.includes('-'))) {
+                    this.currentOperand = '0';
+                } else {
+                    this.currentOperand = this.currentOperand.toString().slice(0, -1);
+                }
+                this.updateDisplay();
+            }
+
+            appendNumber(number) {
+                if (this.currentOperand === 'Error') this.clear();
+                // Prevent multiple decimals
+                if (number === '.' && this.currentOperand.includes('.')) return;
+                
+                // Replace initial zero unless appending a decimal
+                if (this.currentOperand === '0' && number !== '.') {
+                    this.currentOperand = number.toString();
+                } else {
+                    this.currentOperand = this.currentOperand.toString() + number.toString();
+                }
+                this.updateDisplay();
+            }
+
+            chooseOperation(operation) {
+                if (this.currentOperand === 'Error') return;
+                
+                // Allow operator mutation if current operand is empty
+                if (this.currentOperand === '') {
+                    if (this.previousOperand !== '') {
+                        this.operation = operation;
+                        this.updateDisplay();
+                    }
+                    return;
+                }
+
+                if (this.previousOperand !== '') {
+                    this.compute();
+                }
+                
+                this.operation = operation;
+                this.previousOperand = this.currentOperand;
+                this.currentOperand = '';
+                this.updateDisplay();
+            }
+
+            // CORE MATH FIX: IEEE 754 precision handler that respects scaling
+            sanitizeMath(value) {
+                if (!isFinite(value)) return 'Error';
+                // Precision clamping to 15 significant digits prevents 0.1+0.2=0.30000000000000004
+                // while cleanly preserving extreme scientific scales (e.g. 1e-20)
+                return parseFloat(value.toPrecision(15));
+            }
+
+            computeUnary(operation) {
+                if (this.currentOperand === 'Error' || this.currentOperand === '') return;
+                const current = parseFloat(this.currentOperand);
+                if (isNaN(current)) return;
+
+                let computation;
+                // Convert to Radians for Trig functions
+                const rad = current * (Math.PI / 180);
+
+                switch(operation) {
+                    case 'sin': computation = Math.sin(rad); break;
+                    case 'cos': computation = Math.cos(rad); break;
+                    case 'sqrt':
+                        if (current < 0) {
+                            this.currentOperand = 'Error';
+                            this.updateDisplay();
+                            return;
+                        }
+                        computation = Math.sqrt(current);
+                        break;
+                    default: return;
+                }
+                
+                this.currentOperand = this.sanitizeMath(computation).toString();
+                this.updateDisplay();
+            }
+
+            compute() {
+                let computation;
+                const prev = parseFloat(this.previousOperand);
+                const current = parseFloat(this.currentOperand);
+                if (isNaN(prev) || isNaN(current)) return;
+
+                switch (this.operation) {
+                    case '+': computation = prev + current; break;
+                    case '-': computation = prev - current; break;
+                    case '×': computation = prev * current; break;
+                    case '÷':
+                        if (current === 0) {
+                            this.currentOperand = 'Error';
+                            this.previousOperand = '';
+                            this.operation = undefined;
+                            this.updateDisplay();
+                            return;
+                        }
+                        computation = prev / current; 
+                        break;
+                    case '^': computation = Math.pow(prev, current); break;
+                    default: return;
+                }
+
+                this.currentOperand = this.sanitizeMath(computation).toString();
+                this.operation = undefined;
+                this.previousOperand = '';
+                this.updateDisplay();
+            }
+
+            getDisplayNumber(number) {
+                if (number === 'Error') return number;
+                if (number === '') return '';
+
+                const stringNumber = number.toString();
+                
+                // CORE MATH FIX: Directly return native scientific notation formats
+                if (stringNumber.includes('e') || stringNumber.includes('E')) {
+                    return stringNumber;
+                }
+
+                const integerDigits = parseFloat(stringNumber.split('.')[0]);
+                const decimalDigits = stringNumber.split('.')[1];
+                let integerDisplay;
+                
+                if (isNaN(integerDigits)) {
+                    integerDisplay = '0';
+                } else {
+                    integerDisplay = integerDigits.toLocaleString('en', { maximumFractionDigits: 0 });
+                }
+
+                if (decimalDigits != null) {
+                    return `${integerDisplay}.${decimalDigits}`;
+                } else {
+                    return integerDisplay;
+                }
+            }
+
+            updateDisplay() {
+                this.currentElement.innerText = this.getDisplayNumber(this.currentOperand);
+                if (this.operation != null) {
+                    this.previousElement.innerText = `${this.getDisplayNumber(this.previousOperand)} ${this.operation}`;
+                } else {
+                    this.previousElement.innerText = '';
+                }
+            }
+        }
+
+        const previousElement = document.getElementById('previous-operand');
+        const currentElement = document.getElementById('current-operand');
+        const calc = new ScientificCalculator(previousElement, currentElement);
+
+        // Standardized Hardware Interrupts (Keyboard Binding)
+        document.addEventListener('keydown', e => {
+            if (e.key >= 0 && e.key <= 9) calc.appendNumber(e.key);
+            if (e.key === '.') calc.appendNumber(e.key);
+            if (e.key === '=' || e.key === 'Enter') { e.preventDefault(); calc.compute(); }
+            if (e.key === 'Backspace') calc.delete();
+            if (e.key === 'Escape') calc.clear();
+            if (e.key === '+' || e.key === '-') calc.chooseOperation(e.key);
+            if (e.key === '*') calc.chooseOperation('×');
+            if (e.key === '/') calc.chooseOperation('÷');
+            if (e.key === '^') calc.chooseOperation('^');
+        });
+    </script>
+</body>
+</html>

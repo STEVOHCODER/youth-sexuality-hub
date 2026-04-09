@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractional Calculus Chart</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #1e1e2f;
+            color: #ffffff;
+        }
+        .chart-container {
+            width: 90%;
+            max-width: 900px;
+            background: #2a2a40;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+        .description {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="chart-container">
+        <div class="description">
+            <h2>Transition from f(x)=x to f'(x)=1</h2>
+            <p>Using the Riemann-Liouville Fractional Derivative Formula</p>
+        </div>
+        <canvas id="fractionalChart"></canvas>
+    </div>
+
+    <script>
+        // Generate X values from 0.0 to 2.0
+        const xValues = [];
+        for(let i = 0; i <= 20; i++) {
+            xValues.push((i * 0.1).toFixed(1));
+        }
+        
+        /* 
+         * Precomputed Coefficients using the Master Formula: D^α x = [ Γ(2) / Γ(2 - α) ] * x^(1 - α)
+         * - For α = 0.25: 1 / Γ(1.75) ≈ 1.088065
+         * - For α = 0.50: 1 / Γ(1.50) = 2 / √π ≈ 1.128379
+         * - For α = 0.75: 1 / Γ(1.25) ≈ 1.103262
+         */
+        
+        const data0 = xValues.map(x => x);                                    // α = 0.0
+        const data25 = xValues.map(x => 1.088065 * Math.pow(x, 0.75));        // α = 0.25
+        const data50 = xValues.map(x => 1.128379 * Math.pow(x, 0.50));        // α = 0.50
+        const data75 = xValues.map(x => 1.103262 * Math.pow(x, 0.25));        // α = 0.75
+        const data1 = xValues.map(x => 1);                                    // α = 1.0
+
+        const ctx = document.getElementById('fractionalChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: xValues,
+                datasets: [
+                    { label: 'α = 0.00 (Original f(x) = x)', data: data0, borderColor: '#003f5c', backgroundColor: '#003f5c', borderWidth: 3, pointRadius: 0, tension: 0.4 },
+                    { label: 'α = 0.25', data: data25, borderColor: '#58508d', backgroundColor: '#58508d', borderDash: [5, 5], borderWidth: 2, pointRadius: 0, tension: 0.4 },
+                    { label: 'α = 0.50 (Half-derivative)', data: data50, borderColor: '#bc5090', backgroundColor: '#bc5090', borderWidth: 3, pointRadius: 0, tension: 0.4 },
+                    { label: 'α = 0.75', data: data75, borderColor: '#ff6361', backgroundColor: '#ff6361', borderDash: [5, 5], borderWidth: 2, pointRadius: 0, tension: 0.4 },
+                    { label: 'α = 1.00 (First Derivative)', data: data1, borderColor: '#ffa600', backgroundColor: '#ffa600', borderWidth: 3, pointRadius: 0, tension: 0.4 }
+                ]
+            },
+            options: {
+                responsive: true,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        labels: { color: '#e0e0e0', font: { size: 14 } }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0,0,0,0.8)',
+                        titleFont: { size: 14 },
+                        bodyFont: { size: 13 },
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y.toFixed(3);
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: { 
+                        title: { display: true, text: 'x-axis', color: '#aaaaaa', font: { size: 16 } },
+                        ticks: { color: '#e0e0e0' },
+                        grid: { color: '#3a3a50' }
+                    },
+                    y: { 
+                        title: { display: true, text: 'Derivative Output ( D^α x )', color: '#aaaaaa', font: { size: 16 } },
+                        min: 0, 
+                        max: 2.2,
+                        ticks: { color: '#e0e0e0' },
+                        grid: { color: '#3a3a50' }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

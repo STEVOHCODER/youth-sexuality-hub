@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link href="https://cdn.tailwindcss.com/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .calculator-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+        }
+        .calculator-screen {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            text-align: right;
+        }
+        .calculator-button {
+            width: 48%;
+            height: 50px;
+            font-size: 2.5rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .calculator-button:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="calculator-screen"></div>
+        <div class="flex flex-wrap justify-center gap-2">
+            <!-- Buttons -->
+            {% for button in buttons %}
+                <button class="calculator-button" data-operation="{{ button.operation }}">{{ button.label }}</button>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="https://cdn.tailwindcss.com/dist/tailwind.min.css"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        const db = {
+            get: async (key) => await new Promise((resolve, reject) => {
+                localStorage.getItem(key).then(resolve).catch(reject);
+            }),
+            set: async (key, value) => await new Promise((resolve, reject) => {
+                localStorage.setItem(key, value).then(resolve).catch(reject);
+            }),
+            remove: async (key) => await new Promise((resolve, reject) => {
+                localStorage.removeItem(key).then(resolve).catch(reject);
+            })
+        };
+
+        const screen = document.querySelector('.calculator-screen');
+        const buttons = [
+            { label: '7', operation: 'number' },
+            { label: '8', operation: 'number' },
+            { label: '9', operation: 'number' },
+            { label: '/', operation: 'operator' },
+            { label: '4', operation: 'number' },
+            { label: '5', operation: 'number' },
+            { label: '6', operation: 'number' },
+            { label: '*', operation: 'operator' },
+            { label: '1', operation: 'number' },
+            { label: '2', operation: 'number' },
+            { label: '3', operation: 'number' },
+            { label: '-', operation: 'operator' },
+            { label: '0', operation: 'number' },
+            { label: '.', operation: 'decimal' },
+            { label: '=', operation: 'equal' }
+        ];
+
+        let currentNumber = '';
+        let operator = null;
+        let waitingForSecondOperand = false;
+
+        document.addEventListener('click', async (event) => {
+            const target = event.target;
+            if (target.classList.contains('calculator-button')) {
+                const button = target.dataset.operation;
+
+                switch (button) {
+                    case 'number':
+                        currentNumber += target.textContent;
+                        screen.value = currentNumber;
+                        break;
+                    case 'decimal':
+                        if (!currentNumber.includes('.')) {
+                            currentNumber += '.';
+                            screen.value = currentNumber;
+                        }
+                        break;
+                    case 'operator':
+                        if (waitingForSecondOperand) {
+                            operator = target.textContent;
+                            db.set('currentOperator', operator);
+                            waitingForSecondOperand = false;
+                        } else {
+                            const currentValue = parseFloat(currentNumber);
+                            const storedValue = await db.get('storedValue');
+                            switch (operator) {
+                                case '+':
+                                    db.set('storedValue', currentValue + storedValue);
+                                    screen.value = storedValue.toString();
+                                    break;
+                                case '-':
+                                    db.set('storedValue', currentValue - storedValue);
+                                    screen.value = storedValue.toString();
+                                    break;
+                                case '*':
+                                    db.set('storedValue', currentValue * storedValue);
+                                    screen.value = storedValue.toString();
+                                    break;
+                                case '/':
+                                    if (storedValue !== 0) {
+                                        db.set('storedValue', currentValue / storedValue);
+                                        screen.value = storedValue.toString();
+                                    } else {
+                                        alert("Cannot divide by zero");
+                                    }
+                                    break;
+                            }
+                        }
+                        waitingForSecondOperand = true;
+                        operator = target.textContent;
+                        break;
+                    case 'equal':
+                        const currentValue = parseFloat(currentNumber);
+                        const storedValue = await db.get('storedValue');
+                        let result = 0;
+
+                        switch (operator) {
+                            case '+':
+                                result = currentValue + storedValue;
+                                break;
+                            case '-':
+                                result = currentValue - storedValue;
+                                break;
+                            case '*':
+                                result = currentValue * storedValue;
+                                break;
+                            case '/':
+                                if (storedValue !== 0) {
+                                    result = currentValue / storedValue;
+                                } else {
+                                    alert("Cannot divide by zero");
+                                }
+                                break;
+                        }
+
+                        db.set('currentNumber', '');
+                        db.set('storedValue', null);
+                        screen.value = result.toString();
+                        waitingForSecondOperand = false;
+                        operator = null;
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>

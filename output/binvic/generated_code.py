@@ -1,0 +1,1 @@
+Error from Ollama (Status 502): Bad Gateway: /api/generate

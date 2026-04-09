@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architect's Scientific Calculator</title>
+    <style>
+        /* CSS Variables for highly scalable theming */
+        :root {
+            --bg-color: #0f172a;
+            --calc-bg: rgba(30, 41, 59, 0.85);
+            --screen-bg: rgba(15, 23, 42, 0.95);
+            --btn-bg: #334155;
+            --btn-hover: #475569;
+            --btn-active: #1e293b;
+            --sci-btn-bg: #1e293b;
+            --sci-btn-hover: #334155;
+            --accent-color: #38bdf8;
+            --accent-hover: #0ea5e9;
+            --sci-accent: #a855f7;
+            --danger-color: #f43f5e;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-weight: normal;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--bg-color);
+            background-image: radial-gradient(circle at top left, #1e1b4b, #0f172a);
+        }
+
+        /* Upgraded 5-Column Grid */
+        .calculator-grid {
+            display: grid;
+            justify-content: center;
+            align-content: center;
+            grid-template-columns: repeat(5, 75px);
+            grid-template-rows: minmax(110px, auto) repeat(6, 70px);
+            gap: 10px;
+            padding: 24px;
+            background-color: var(--calc-bg);
+            border-radius: 20px;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Screen spans all 5 columns */
+        .output {
+            grid-column: 1 / -1;
+            background-color: var(--screen-bg);
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            flex-direction: column;
+            padding: 16px;
+            word-wrap: break-word;
+            word-break: break-all;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.6);
+            margin-bottom: 8px;
+        }
+
+        .output .previous-operand {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            min-height: 1.5rem;
+        }
+
+        .output .current-operand {
+            color: var(--text-main);
+            font-size: 2.2rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        /* Buttons Base Architecture */
+        button {
+            cursor: pointer;
+            font-size: 1.3rem;
+            border: none;
+            outline: none;
+            background-color: var(--btn-bg);
+            color: var(--text-main);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        button:hover {
+            background-color: var(--btn-hover);
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            background-color: var(--btn-active);
+            transform: translateY(0);
+        }
+
+        .span-two { grid-column: span 2; }
+        
+        /* Thematic Button Classes */
+        .btn-sci {
+            background-color: var(--sci-btn-bg);
+            color: var(--sci-accent);
+            font-size: 1.1rem;
+            border: 1px solid rgba(168, 85, 247, 0.15);
+        }
+        .btn-sci:hover { background-color: var(--sci-btn-hover); }
+
+        .btn-operator {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: var(--accent-color);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+        }
+        .btn-operator:hover { background-color: rgba(56, 189, 248, 0.2); }
+
+        .btn-equals {
+            background-color: var(--accent-color);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        }
+        .btn-equals:hover { background-color: var(--accent-hover); }
+
+        .btn-clear {
+            color: var(--danger-color);
+            background-color: rgba(244, 63, 94, 0.1);
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator-grid">
+        <div class="output">
+            <div data-previous-operand class="previous-operand"></div>
+            <div data-current-operand class="current-operand">0</div>
+        </div>
+        
+        <!-- Row 1 -->
+        <button data-all-clear class="span-two btn-clear">AC</button>
+        <button data-delete class="btn-clear">DEL</button>
+        <button data-constant class="btn-sci">π</button>
+        <button data-constant class="btn-sci">e</button>
+
+        <!-- Row 2 -->
+        <button data-sci-single class="btn-sci">sin</button>
+        <button data-number>7</button>
+        <button data-number>8</button>
+        <button data-number>9</button>
+        <button data-operation class="btn-operator">÷</button>
+
+        <!-- Row 3 -->
+        <button data-sci-single class="btn-sci">cos</button>
+        <button data-number>4</button>
+        <button data-number>5</button>
+        <button data-number>6</button>
+        <button data-operation class="btn-operator">×</button>
+
+        <!-- Row 4 -->
+        <button data-sci-single class="btn-sci">tan</button>
+        <button data-number>1</button>
+        <button data-number>2</button>
+        <button data-number>3</button>
+        <button data-operation class="btn-operator">-</button>
+
+        <!-- Row 5 -->
+        <button data-sci-single class="btn-sci">log</button>
+        <button data-modifier class="btn-sci">+/-</button>
+        <button data-number>0</button>
+        <button data-number>.</button>
+        <button data-operation class="btn-operator">+</button>
+
+        <!-- Row 6 -->
+        <button data-sci-single class="btn-sci">ln</button>
+        <button data-sci-single class="btn-sci">√</button>
+        <button data-operation class="btn-sci">^</button>
+        <button data-equals class="span-two btn-equals">=</button>
+    </div>
+
+    <script>
+        class Calculator {
+            constructor(previousOperandTextElement, currentOperandTextElement) {
+                this.previousOperandTextElement = previousOperandTextElement;
+                this.currentOperandTextElement = currentOperandTextElement;
+                this.clear();
+            }
+
+            clear() {
+                this.currentOperand = '0';
+                this.previousOperand = '';
+                this.operation = undefined;
+                this.shouldResetScreen = false;
+            }
+
+            delete() {
+                if (this.currentOperand === '0') return;
+                this.currentOperand = this.currentOperand.toString().slice(0, -1);
+                if (this.currentOperand === '') this.currentOperand = '0';
+            }
+
+            appendNumber(number) {
+                if (this.shouldResetScreen) {
+                    this.currentOperand = '';
+                    this.shouldResetScreen = false;
+                }
+                if (number === '.' && this.currentOperand.includes('.')) return;
+                if (this.currentOperand === '0' && number !== '.') {
+                    this.currentOperand = number.toString();
+                    return;
+                }
+                this.currentOperand = this.currentOperand.toString() + number.toString();
+            }
+
+            // Architecture Addition: Injecting Constants purely overwrites the current display
+            appendConstant(constant) {
+                if (constant === 'π') this.currentOperand = Math.PI.toString();
+                if (constant === 'e') this.currentOperand = Math.E.toString();
+                this.shouldResetScreen = true;
+            }
+
+            // Architecture Addition: Toggling positive/negative
+            toggleSign() {
+                if (this.currentOperand === '' || this.currentOperand === '0') return;
+                this.currentOperand = (parseFloat(this.currentOperand) * -1).toString();
+            }
+
+            // Architecture Addition: Immediate Execution Functions (Trig, Roots, Logs)
+            computeSingle(action) {
+                let current = parseFloat(this.currentOperand);
+                if (isNaN(current)) return;
+
+                switch (action) {
+                    case 'sin':
+                        // Converting degrees to radians for JS Math
+                        current = Math.sin(current * (Math.PI / 180));
+                        break;
+                    case 'cos':
+                        current = Math.cos(current * (Math.PI / 180));
+                        break;
+                    case 'tan':
+                        current = Math.tan(current * (Math.PI / 180));
+                        break;
+                    case 'log':
+                        if (current <= 0) { alert("Domain error: log"); this.clear(); return; }
+                        current = Math.log10(current);
+                        break;
+                    case 'ln':
+                        if (current <= 0) { alert("Domain error: ln"); this.clear(); return; }
+                        current = Math.log(current);
+                        break;
+                    case '√':
+                        if (current < 0) { alert("Domain error: √ negative number"); this.clear(); return; }
+                        current = Math.sqrt(current);
+                        break;
+                    default:
+                        return;
+                }
+                
+                // Address Javascript floating point precision quirks (e.g., sin(180) != 0)
+                if (Math.abs(current) < 1e-10) current = 0;
+
+                this.currentOperand = current.toString();
+                this.shouldResetScreen = true;
+            }
+
+            chooseOperation(operation) {
+                if (this.currentOperand === '' && this.previousOperand === '') return;
+                if (this.currentOperand === '') {
+                    this.operation = operation;
+                    return;
+                }
+                if (this.previousOperand !== '') {
+                    this.compute();
+                }
+                this.operation = operation;
+                this.previousOperand = this.currentOperand;
+                this.currentOperand = '';
+            }
+
+            compute() {
+                let computation;
+                const prev = parseFloat(this.previousOperand);
+                const current = parseFloat(this.currentOperand);
+                
+                if (isNaN(prev) || isNaN(current)) return;
+
+                switch (this.operation) {
+                    case '+': computation = prev + current; break;
+                    case '-': computation = prev - current; break;
+                    case '×': computation = prev * current; break;
+                    case '÷':
+                        if (current === 0) { alert("Cannot divide by zero."); this.clear(); return; }
+                        computation = prev / current;
+                        break;
+                    case '^': computation = Math.pow(prev, current); break; // Exponential addition
+                    default: return;
+                }
+                this.currentOperand = computation.toString();
+                this.operation = undefined;
+                this.previousOperand = '';
+                this.shouldResetScreen = true;
+            }
+
+            getDisplayNumber(number) {
+                const stringNumber = number.toString();
+                // Handle Scientific Notation for very large/small numbers automatically from JS Math
+                if (stringNumber.includes('e')) return number.toPrecision(7);
+
+                const integerDigits = parseFloat(stringNumber.split('.')[0]);
+                const decimalDigits = stringNumber.split('.')[1];
+                let integerDisplay;
+                
+                if (isNaN(integerDigits)) {
+                    integerDisplay = '';
+                } else {
+                    integerDisplay = integerDigits.toLocaleString('en', { maximumFractionDigits: 0 });
+                }
+                
+                if (decimalDigits != null) {
+                    return `${integerDisplay}.${decimalDigits}`;
+                } else {
+                    return integerDisplay;
+                }
+            }
+
+            updateDisplay() {
+                this.currentOperandTextElement.innerText = 
+                    this.currentOperand === '0' || this.currentOperand === '' 
+                    ? this.currentOperand 
+                    : this.getDisplayNumber(this.currentOperand);
+
+                if (this.operation != null) {
+                    this.previousOperandTextElement.innerText = 
+                        `${this.getDisplayNumber(this.previousOperand)} ${this.operation}`;
+                } else {
+                    this.previousOperandTextElement.innerText = '';
+                }
+            }
+        }
+
+        // --- View & Controller Bindings ---
+
+        const calculator = new Calculator(
+            document.querySelector('[data-previous-operand]'),
+            document.querySelector('[data-current-operand]')
+        );
+
+        // Standard Numbers
+        document.querySelectorAll('[data-number]').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.appendNumber(button.innerText);
+                calculator.updateDisplay();
+            });
+        });
+
+        // Operations (+, -, *, /, ^)
+        document.querySelectorAll('[data-operation]').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.chooseOperation(button.innerText);
+                calculator.updateDisplay();
+            });
+        });
+
+        // Scientific Immediate Execution (sin, cos, tan, log, ln, √)
+        document.querySelectorAll('[data-sci-single]').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.computeSingle(button.innerText);
+                calculator.updateDisplay();
+            });
+        });
+
+        // Math Constants (π, e)
+        document.querySelectorAll('[data-constant]').forEach(button => {
+            button.addEventListener('click', () => {
+                calculator.appendConstant(button.innerText);
+                calculator.updateDisplay();
+            });
+        });
+
+        // Utility Buttons
+        document.querySelector('[data-modifier]').addEventListener('click', () => {
+            calculator.toggleSign();
+            calculator.updateDisplay();
+        });
+
+        document.querySelector('[data-equals]').addEventListener('click', () => {
+            calculator.compute();
+            calculator.updateDisplay();
+        });
+
+        document.querySelector('[data-all-clear]').addEventListener('click', () => {
+            calculator.clear();
+            calculator.updateDisplay();
+        });
+
+        document.querySelector('[data-delete]').addEventListener('click', () => {
+            calculator.delete();
+            calculator.updateDisplay();
+        });
+    </script>
+</body>
+</html>

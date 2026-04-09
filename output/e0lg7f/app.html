@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Architect - Scientific Graphing Calculator</title>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- Tailwind CSS for Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Math.js for Scientific Parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.8.0/math.min.js"></script>
+
+    <!-- Plotly for High-Performance Graphing -->
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
+
+    <style>
+        body {
+            background-color: #0f172a; /* Slate 900 */
+            color: white;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .btn {
+            transition: all 0.1s ease-in-out;
+        }
+        .btn:active {
+            transform: scale(0.95);
+        }
+        /* Custom scrollbar for expression input */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        function App() {
+            const [expression, setExpression] = useState("");
+            const [result, setResult] = useState("");
+            const plotRef = useRef(null);
+
+            // Core Evaluation Engine
+            const evaluateExpression = (expr) => {
+                if (!expr) {
+                    setResult("");
+                    plotGraph("");
+                    return;
+                }
+                try {
+                    // Check if expression contains a variable 'x'
+                    if (expr.includes('x')) {
+                        setResult("f(x) Ready");
+                        plotGraph(expr);
+                    } else {
+                        // Evaluate standard scalar math
+                        const res = math.evaluate(expr);
+                        setResult(math.format(res, { precision: 10 }));
+                        plotGraph(expr); // Plot it as a constant line y = c
+                    }
+                } catch (error) {
+                    setResult("Syntax Error");
+                }
+            };
+
+            // Parametric Graphing Engine
+            const plotGraph = (expr) => {
+                if (!plotRef.current) return;
+
+                let xValues = [];
+                let yValues = [];
+
+                try {
+                    const compiled = math.compile(expr);
+                    // Domain: x from -10 to 10
+                    xValues = math.range(-10, 10, 0.1).toArray();
+                    yValues = xValues.map(x => {
+                        try {
+                            return compiled.evaluate({ x: x });
+                        } catch (e) {
+                            return null;
+                        }
+                    });
+                } catch (error) {
+                    // If compilation fails (mid-typing), leave graph as is
+                    return; 
+                }
+
+                const trace = {
+                    x: xValues,
+                    y: yValues,
+                    type: 'scatter',
+                    mode: 'lines',
+                    line: { color: '#10b981', width: 3 }, // Emerald 500
+                    name: `f(x) = ${expr}`
+                };
+
+                const layout = {
+                    paper_bgcolor: '#1e293b', 
+                    plot_bgcolor: '#1e293b',
+                    font: { color: '#cbd5e1' },
+                    margin: { t: 40, l: 40, r: 20, b: 40 },
+                    title: {
+                        text: expr ? `Graph of ${expr}` : "Cartesian Plane R²",
+                        font: { size: 14, color: '#94a3b8' }
+                    },
+                    xaxis: { zerolinecolor: '#475569', gridcolor: '#334155', range: [-10, 10] },
+                    yaxis: { zerolinecolor: '#475569', gridcolor: '#334155', range: [-10, 10] },
+                    showlegend: false
+                };
+
+                Plotly.react(plotRef.current, [trace], layout, { responsive: true, displayModeBar: false });
+            };
+
+            // Initialize empty graph on mount
+            useEffect(() => {
+                plotGraph("x");
+            }, []);
+
+            // Input Handlers
+            const appendInput = (val) => {
+                const newExpr = expression + val;
+                setExpression(newExpr);
+                evaluateExpression(newExpr);
+            };
+
+            const clear = () => {
+                setExpression("");
+                setResult("");
+                plotGraph("x");
+            };
+
+            const deleteChar = () => {
+                const newExpr = expression.slice(0, -1);
+                setExpression(newExpr);
+                evaluateExpression(newExpr);
+            };
+
+            const calculateFinal = () => {
+                evaluateExpression(expression);
+            };
+
+            return (
+                <div className="w-full max-w-5xl flex flex-col md:flex-row gap-6">
+                    
+                    {/* Left Panel: Calculator Interface */}
+                    <div className="bg-slate-800 p-6 rounded-3xl shadow-2xl w-full md:w-[400px] border border-slate-700 flex-shrink-0">
+                        {/* Digital Screen */}
+                        <div className="bg-slate-900 h-28 rounded-2xl mb-6 flex flex-col items-end justify-between p-4 shadow-inner border border-slate-700">
+                            <div className="text-slate-400 text-lg w-full text-right overflow-x-auto whitespace-nowrap tracking-wide">
+                                {expression || "0"}
+                            </div>
+                            <div className={`text-3xl font-bold ${result === "Syntax Error" ? "text-red-400" : "text-white"}`}>
+                                {result || "0"}
+                            </div>
+                        </div>
+
+                        {/* Scientific & Standard Keypad Grid */}
+                        <div className="grid grid-cols-5 gap-2 text-sm">
+                            {/* Row 1 */}
+                            <button onClick={() => appendInput("sin(")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">sin</button>
+                            <button onClick={() => appendInput("cos(")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">cos</button>
+                            <button onClick={() => appendInput("tan(")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">tan</button>
+                            <button onClick={clear} className="btn col-span-2 bg-red-500 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-md">AC</button>
+                            
+                            {/* Row 2 */}
+                            <button onClick={() => appendInput("log(")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">log</button>
+                            <button onClick={() => appendInput("sqrt(")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">√</button>
+                            <button onClick={() => appendInput("^")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">xʸ</button>
+                            <button onClick={deleteChar} className="btn col-span-2 bg-slate-600 hover:bg-slate-500 text-white font-bold py-3 rounded-xl shadow-md">DEL</button>
+
+                            {/* Row 3 */}
+                            <button onClick={() => appendInput("(")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">(</button>
+                            <button onClick={() => appendInput(")")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">)</button>
+                            <button onClick={() => appendInput("x")} className="btn bg-emerald-600 hover:bg-emerald-500 text-white py-3 rounded-xl font-bold font-serif italic text-lg shadow-md border-b-4 border-emerald-800 active:border-b-0">x</button>
+                            <button onClick={() => appendInput("/")} className="btn col-span-2 bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3 rounded-xl text-lg shadow-md">÷</button>
+
+                            {/* Row 4 */}
+                            <button onClick={() => appendInput("pi")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium text-lg">π</button>
+                            <button onClick={() => appendInput("7")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">7</button>
+                            <button onClick={() => appendInput("8")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">8</button>
+                            <button onClick={() => appendInput("9")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">9</button>
+                            <button onClick={() => appendInput("*")} className="btn bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3 rounded-xl text-lg shadow-md">×</button>
+
+                            {/* Row 5 */}
+                            <button onClick={() => appendInput("e")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium text-lg italic">e</button>
+                            <button onClick={() => appendInput("4")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">4</button>
+                            <button onClick={() => appendInput("5")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">5</button>
+                            <button onClick={() => appendInput("6")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">6</button>
+                            <button onClick={() => appendInput("-")} className="btn bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3 rounded-xl text-lg shadow-md">−</button>
+
+                            {/* Row 6 */}
+                            <button onClick={() => appendInput("exp(")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">exp</button>
+                            <button onClick={() => appendInput("1")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">1</button>
+                            <button onClick={() => appendInput("2")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">2</button>
+                            <button onClick={() => appendInput("3")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">3</button>
+                            <button onClick={() => appendInput("+")} className="btn bg-indigo-500 hover:bg-indigo-400 text-white font-bold py-3 rounded-xl text-lg shadow-md">+</button>
+
+                            {/* Row 7 */}
+                            <button onClick={() => appendInput("abs(")} className="btn bg-slate-700 hover:bg-slate-600 text-slate-200 py-3 rounded-xl font-medium">|x|</button>
+                            <button onClick={() => appendInput("0")} className="btn col-span-2 bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">0</button>
+                            <button onClick={() => appendInput(".")} className="btn bg-slate-800 border border-slate-600 hover:bg-slate-600 text-white font-bold py-3 rounded-xl text-lg">.</button>
+                            <button onClick={calculateFinal} className="btn bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl text-lg shadow-md">=</button>
+                        </div>
+                    </div>
+
+                    {/* Right Panel: Graphing Rendering Canvas */}
+                    <div className="bg-slate-800 p-2 rounded-3xl shadow-2xl w-full md:flex-1 border border-slate-700 flex flex-col overflow-hidden min-h-[400px]">
+                        <div ref={plotRef} className="w-full h-full rounded-2xl overflow-hidden"></div>
+                    </div>
+
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

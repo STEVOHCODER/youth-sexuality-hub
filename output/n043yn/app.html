@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduPro - Advanced E-Learning Platform</title>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7c7cc; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a1a1aa; }
+    </style>
+</head>
+<body class="font-sans text-gray-800 bg-gray-50 selection:bg-primary-100 selection:text-primary-900">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-2 cursor-pointer">
+                    <div class="bg-primary-600 p-2 rounded-lg">
+                        <i data-lucide="graduation-cap" class="text-white w-6 h-6"></i>
+                    </div>
+                    <span class="font-bold text-xl tracking-tight text-gray-900">Edu<span class="text-primary-600">Pro</span></span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Home</a>
+                    <a href="#categories" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Categories</a>
+                    <a href="#courses" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Courses</a>
+                    <a href="#" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Mentors</a>
+                </div>
+
+                <!-- Search & Actions -->
+                <div class="hidden md:flex items-center space-x-6">
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                        <input type="text" placeholder="Search courses..." class="pl-10 pr-4 py-2 bg-gray-100 border-transparent rounded-full text-sm focus:bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-200 outline-none transition-all w-48 focus:w-64">
+                    </div>
+                    <a href="#" class="text-gray-600 hover:text-primary-600 font-medium transition-colors">Log in</a>
+                    <a href="#" class="bg-primary-600 hover:bg-primary-700 text-white px-5 py-2.5 rounded-full font-medium transition-colors shadow-sm shadow-primary-500/30">Sign up</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="relative pt-20 pb-24 lg:pt-32 lg:pb-40 overflow-hidden">
+        <!-- Background Decoration -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
+            <div class="absolute -top-40 -right-40 w-96 h-96 bg-primary-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
+            <div class="absolute top-40 -left-40 w-96 h-96 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70"></div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                
+                <!-- Hero Content -->
+                <div class="text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 text-primary-700 text-sm font-semibold mb-6">
+                        <span class="flex h-2 w-2 rounded-full bg-primary-600"></span>
+                        Over 10,000+ Active Students
+                    </div>
+                    <h1 class="text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
+                        Unlock Your Potential with <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-blue-500">World-Class</span> Learning
+                    </h1>
+                    <p class="text-lg text-gray-600 mb-8 max-w-2xl mx-auto lg:mx-0">
+                        Master new skills, advance your career, and connect with top-tier mentors globally. High-quality courses tailored to your goals.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                        <button class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-4 rounded-full font-semibold text-lg transition-all transform hover:-translate-y-1 shadow-lg shadow-primary-500/30 flex items-center justify-center gap-2">
+                            Explore Courses <i data-lucide="arrow-right" class="w-5 h-5"></i>
+                        </button>
+                        <button class="bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 px-8 py-4 rounded-full font-semibold text-lg transition-all flex items-center justify-center gap-2 shadow-sm">
+                            <i data-lucide="play-circle" class="w-5 h-5 text-primary-600"></i> Watch Demo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hero Image -->
+                <div class="relative hidden lg:block">
+                    <div class="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white transform rotate-2 hover:rotate-0 transition-transform duration-500">
+                        <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1471&q=80" alt="Students learning" class="w-full h-auto object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-gray-900/40 to-transparent"></div>
+                    </div>
+                    
+                    <!-- Floating Badge -->
+                    <div class="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-xl flex items-center gap-4 border border-gray-100 animate-bounce" style="animation-duration: 3s;">
+                        <div class="bg-green-100 p-3 rounded-full">
+                            <i data-lucide="award" class="w-6 h-6 text-green-600"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Top Rated</p>
+                            <p class="text-gray-900 font-bold">Platform 2024</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="border-y border-gray-200 bg-white py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <h3 class="text-3xl font-bold text-gray-900 mb-1">15K+</h3>
+                    <p class="text-gray-500 font-medium">Enrolled Students</p>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-bold text-gray-900 mb-1">850+</h3>
+                    <p class="text-gray-500 font-medium">Video Courses</p>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-bold text-gray-900 mb-1">120+</h3>
+                    <p class="text-gray-500 font-medium">Expert Mentors</p>
+                </div>
+                <div>
+                    <h3 class="text-3xl font-bold text-gray-900 mb-1">4.9/5</h3>
+                    <p class="text-gray-500 font-medium">Average Rating</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Categories Section -->
+    <section id="categories" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-end mb-10">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-900 mb-2">Top Categories</h2>
+                    <p class="text-gray-600">Explore our highly sought-after learning paths.</p>
+                </div>
+                <a href="#" class="hidden sm:flex text-primary-600 font-medium hover:text-primary-700 items-center gap-1">
+                    See All <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Category 1 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary-100 transition-all cursor-pointer group">
+                    <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+                        <i data-lucide="code" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">Development</h3>
+                    <p class="text-gray-500 text-sm">250+ Courses</p>
+                </div>
+
+                <!-- Category 2 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary-100 transition-all cursor-pointer group">
+                    <div class="w-14 h-14 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <i data-lucide="pen-tool" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">Design</h3>
+                    <p class="text-gray-500 text-sm">180+ Courses</p>
+                </div>
+
+                <!-- Category 3 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary-100 transition-all cursor-pointer group">
+                    <div class="w-14 h-14 bg-green-50 text-green-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
+                        <i data-lucide="pie-chart" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">Business</h3>
+                    <p class="text-gray-500 text-sm">120+ Courses</p>
+                </div>
+
+                <!-- Category 4 -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-primary-100 transition-all cursor-pointer group">
+                    <div class="w-14 h-14 bg-orange-50 text-orange-600 rounded-xl flex items-center justify-center mb-4 group-hover:bg-orange-600 group-hover:text-white transition-colors">
+                        <i data-lucide="megaphone" class="w-7 h-7"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-1">Marketing</h3>
+                    <p class="text-gray-500 text-sm">90+ Courses</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Courses Section -->
+    <section id="courses" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <h2 class="text-3xl font-bold text-gray-900 mb-4">Featured Courses</h2>
+                <p class="text-gray-600">Hand-picked courses by our expert team. Upgrade your skills with the latest curriculum designed by industry professionals.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Course 1 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300 group flex flex-col">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1555066931-4365d14bab8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="React Course" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900">
+                            Development
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                            <span class="text-sm font-bold text-gray-900">4.9</span>
+                            <span class="text-sm text-gray-500">(1.2k reviews)</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2">Complete React Developer in 2024 (w/ Redux, Hooks)</h3>
+                        <p class="text-gray-500 text-sm mb-4 line-clamp-2">Learn React from scratch. Create modern, complex, responsive, and scalable web applications.</p>
+                        
+                        <div class="mt-auto">
+                            <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://i.pravatar.cc/150?img=11" alt="Instructor" class="w-8 h-8 rounded-full">
+                                    <span class="text-sm font-medium text-gray-700">Andrei Neagoie</span>
+                                </div>
+                                <span class="text-lg font-bold text-primary-600">$89.99</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course 2 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300 group flex flex-col">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1561070791-2526d30994b5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="UI/UX Course" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900">
+                            Design
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                            <span class="text-sm font-bold text-gray-900">4.8</span>
+                            <span class="text-sm text-gray-500">(850 reviews)</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2">UI/UX Design Masterclass: From Beginner to Pro</h3>
+                        <p class="text-gray-500 text-sm mb-4 line-clamp-2">Master Figma, design theory, user research, and build an incredible portfolio to get hired.</p>
+                        
+                        <div class="mt-auto">
+                            <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://i.pravatar.cc/150?img=5" alt="Instructor" class="w-8 h-8 rounded-full">
+                                    <span class="text-sm font-medium text-gray-700">Sarah Johnson</span>
+                                </div>
+                                <span class="text-lg font-bold text-primary-600">$64.99</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course 3 -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl transition-shadow duration-300 group flex flex-col">
+                    <div class="relative h-48 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Data Science Course" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                        <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold text-gray-900">
+                            Data Science
+                        </div>
+                    </div>
+                    <div class="p-6 flex flex-col flex-grow">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="star" class="w-4 h-4 text-yellow-400 fill-yellow-400"></i>
+                            <span class="text-sm font-bold text-gray-900">4.9</span>
+                            <span class="text-sm text-gray-500">(2.4k reviews)</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 mb-2 line-clamp-2">Python for Data Science and Machine Learning Bootcamp</h3>
+                        <p class="text-gray-500 text-sm mb-4 line-clamp-2">Learn how to use NumPy, Pandas, Seaborn, Matplotlib, Plotly, Scikit-Learn, Machine Learning, and more!</p>
+                        
+                        <div class="mt-auto">
+                            <div class="flex items-center justify-between border-t border-gray-100 pt-4">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://i.pravatar.cc/150?img=8" alt="Instructor" class="w-8 h-8 rounded-full">
+                                    <span class="text-sm font-medium text-gray-700">Dr. Angela Yu</span>
+                                </div>
+                                <span class="text-lg font-bold text-primary-600">$94.99</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-12 text-center">
+                <button class="bg-transparent hover:bg-gray-50 text-gray-900 border-2 border-gray-200 px-8 py-3 rounded-full font-semibold transition-colors">
+                    View All Courses
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 relative overflow-hidden">
+        <div class="absolute inset-0 bg-primary-900"></div>
+        <!-- Decorative SVG -->
+        <div class="absolute inset-0 opacity-10">
+            <svg class="h-full w-full" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <pattern id="pattern-cubes" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M0 40V20L20 10l20 10v20L20 50z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M20 10v20l20 10" stroke="currentColor" stroke-width="2"/>
+                    <path d="M0 20l20 10" stroke="currentColor" stroke-width="2"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#pattern-cubes)" />
+            </svg>
+        </div>
+        
+        <div class="max-w-4xl mx-auto px-4 relative z-10 text-center">
+            <h2 class="text-4xl font-bold text-white mb-6">Ready to Transform Your Career?</h2>
+            <p class="text-primary-100 text-lg mb-10">Join thousands of learners achieving their goals with our comprehensive courses and expert-led mentorship.</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="bg-white text-primary-900 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-50 transition-colors shadow-lg">
+                    Get Started for Free
+                </button>
+                <button class="bg-primary-800 text-white border border-primary-700 px-8 py-4 rounded-full font-bold text-lg hover:bg-primary-700 transition-colors">
+                    Contact Enterprise
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-16">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-12">
+                
+                <!-- Brand -->
+                <div class="col-span-1 lg:col-span-1">
+                    <div class="flex items-center gap-2 mb-6">
+                        <div class="bg-primary-600 p-2 rounded-lg">
+                            <i data-lucide="graduation-cap" class="text-white w-6 h-6"></i>
+                        </div>
+                        <span class="font-bold text-2xl tracking-tight text-white">Edu<span class="text-primary-500">Pro</span></span>
+                    </div>
+                    <p class="text-gray-400 mb-6">Empowering global learners with top-tier education, transforming careers and lives through accessible learning.</p>
+                    <div class="flex gap-4">
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary-600 transition-colors">
+                            <i data-lucide="twitter" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary-600 transition-colors">
+                            <i data-lucide="facebook" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary-600 transition-colors">
+                            <i data-lucide="instagram" class="w-5 h-5"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-primary-600 transition-colors">
+                            <i data-lucide="linkedin" class="w-5 h-5"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Links: Platform -->
+                <div>
+                    <h4 class="text-white font-bold mb-6">Platform</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">Browse Courses</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">Mentorship</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">Pricing Plans</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">EduPro for Business</a></li>
+                    </ul>
+                </div>
+
+                <!-- Links: Company -->
+                <div>
+                    <h4 class="text-white font-bold mb-6">Company</h4>
+                    <ul class="space-y-4">
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">About Us</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">Careers</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-primary-400 transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Newsletter -->
+                <div>
+                    <h4 class="text-white font-bold mb-6">Stay Updated</h4>
+                    <p class="text-gray-400 mb-4">Subscribe to our newsletter for the latest courses and tech news.</p>
+                    <div class="flex">
+                        <input type="email" placeholder="Enter your email" class="bg-gray-800 border-none text-white px-4 py-3 rounded-l-lg w-full focus:outline-none focus:ring-2 focus:ring-primary-500">
+                        <button class="bg-primary-600 hover:bg-primary-700 px-4 py-3 rounded-r-lg transition-colors flex items-center justify-center">
+                            <i data-lucide="send" class="w-5 h-5 text-white"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-500 text-sm mb-4 md:mb-0">&copy; 2024 EduPro Inc. All rights reserved.</p>
+                <div class="flex gap-6 text-sm text-gray-500">
+                    <a href="#" class="hover:text-white transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-white transition-colors">Terms of Service</a>
+                    <a href="#" class="hover:text-white transition-colors">Cookie Settings</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

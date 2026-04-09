@@ -1,0 +1,33 @@
+<!-- filename: index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractional Calculus Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Fractional Calculus Analytics</h1>
+        <p>Dashboard reflecting synthetic data built dynamically using the Riemann-Liouville fractional derivative master equation: <code>D^α x^n = [Γ(n+1) / Γ(n-α+1)] x^(n-α)</code></p>
+        
+        <div class="chart-container">
+            <canvas id="pivotChart"></canvas>
+        </div>
+
+        <h2>Pivot Table Breakdown</h2>
+        <p class="subtitle">Mean derivative value grouped by <code>x</code> and derivative order <code>α</code>.</p>
+        <div class="table-container">
+            <table id="pivotTable">
+                <thead>
+                    <tr id="tableHeader"></tr>
+                </thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

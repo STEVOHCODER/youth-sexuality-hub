@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fractional Calculus: Half-Derivative Visualization</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-900 text-white flex items-center justify-center min-h-screen p-8">
+
+    <div class="max-w-4xl w-full bg-slate-800 rounded-xl shadow-2xl p-6 border border-slate-700">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-blue-400 mb-2">Fractional Derivatives of f(x) = x</h1>
+            <p class="text-slate-400 text-sm">Visualizing the transition from the base function (0th derivative), to the half-derivative (0.5th), to the first classical derivative (1st).</p>
+        </div>
+        
+        <div class="relative h-96 w-full">
+            <canvas id="fractionalChart"></canvas>
+        </div>
+        
+        <div class="mt-6 grid grid-cols-3 gap-4 text-center text-sm">
+            <div class="bg-slate-700 p-3 rounded-lg border-l-4 border-blue-500">
+                <span class="block font-bold">Base Function</span>
+                <span class="text-blue-300 font-mono">f(x) = x</span>
+            </div>
+            <div class="bg-slate-700 p-3 rounded-lg border-l-4 border-purple-500">
+                <span class="block font-bold">Half-Derivative (α = 0.5)</span>
+                <span class="text-purple-300 font-mono">D<sup>0.5</sup> = (2/√π)√x</span>
+            </div>
+            <div class="bg-slate-700 p-3 rounded-lg border-l-4 border-emerald-500">
+                <span class="block font-bold">1st Derivative (α = 1.0)</span>
+                <span class="text-emerald-300 font-mono">D<sup>1</sup> = 1</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Generate data points
+        const xValues = [];
+        const yBase = [];       // f(x) = x
+        const yHalfDeriv = [];  // D^{0.5}x = (2 / sqrt(pi)) * sqrt(x)
+        const yFirstDeriv = []; // D^{1}x = 1
+
+        const coefficient = 2 / Math.sqrt(Math.PI); // approx 1.128379
+
+        for (let x = 0; x <= 5; x += 0.2) {
+            xValues.push(x.toFixed(1));
+            yBase.push(x);
+            yHalfDeriv.push(coefficient * Math.sqrt(x));
+            yFirstDeriv.push(1);
+        }
+
+        const ctx = document.getElementById('fractionalChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: xValues,
+                datasets: [
+                    {
+                        label: 'f(x) = x (0th Derivative)',
+                        data: yBase,
+                        borderColor: '#3b82f6', // blue-500
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'D½x = (2/√π)√x (0.5th Derivative)',
+                        data: yHalfDeriv,
+                        borderColor: '#a855f7', // purple-500
+                        backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                        borderWidth: 3,
+                        borderDash: [5, 5],
+                        tension: 0.4,
+                        pointRadius: 0
+                    },
+                    {
+                        label: 'D¹x = 1 (1st Derivative)',
+                        data: yFirstDeriv,
+                        borderColor: '#10b981', // emerald-500
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                scales: {
+                    x: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        title: { display: true, text: 'x', color: '#94a3b8' },
+                        ticks: { color: '#94a3b8' }
+                    },
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        title: { display: true, text: 'y / D(y)', color: '#94a3b8' },
+                        ticks: { color: '#94a3b8' }
+                    }
+                },
+                plugins: {
+                    legend: { labels: { color: '#cbd5e1' } }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

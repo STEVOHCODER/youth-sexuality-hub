@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Persistent Calculator</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom scrollbar for the display in case of massive numbers */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        
+        /* Smooth transitions for tactile button feel */
+        .calc-btn {
+            transition: all 0.1s ease-in-out;
+        }
+        .calc-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="bg-slate-950 flex items-center justify-center min-h-screen text-slate-100 antialiased selection:bg-indigo-500/30">
+
+    <!-- Calculator Container -->
+    <div class="w-full max-w-sm bg-slate-900 rounded-[2rem] shadow-2xl shadow-indigo-500/10 border border-slate-800 overflow-hidden relative">
+        
+        <!-- Persistence Indicator -->
+        <div class="absolute top-4 left-5 flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+            <span class="text-xs font-medium text-slate-500 tracking-wider uppercase">Auto-Saved</span>
+        </div>
+
+        <!-- Display Section -->
+        <div class="p-6 pt-12 text-right bg-slate-900/50 flex flex-col justify-end h-40 border-b border-slate-800">
+            <div id="previous-operand" class="text-slate-400 text-sm font-medium tracking-wide h-6 break-all overflow-hidden flex justify-end items-center gap-1"></div>
+            <div id="current-operand" class="text-5xl font-light tracking-tight text-white truncate">0</div>
+        </div>
+
+        <!-- Keypad Section -->
+        <div id="keypad" class="grid grid-cols-4 gap-3 p-6 bg-slate-900">
+            <!-- Row 1 -->
+            <button data-action="clear" class="calc-btn col-span-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-4 rounded-2xl text-lg tracking-wide">AC</button>
+            <button data-action="delete" class="calc-btn bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold py-4 rounded-2xl text-lg">DEL</button>
+            <button data-operator="÷" class="calc-btn bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 font-semibold py-4 rounded-2xl text-xl border border-indigo-500/20">÷</button>
+            
+            <!-- Row 2 -->
+            <button data-number="7" class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">7</button>
+            <button data-number="8" class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">8</button>
+            <button data-number="9" class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">9</button>
+            <button data-operator="×" class="calc-btn bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 font-semibold py-4 rounded-2xl text-xl border border-indigo-500/20">×</button>
+            
+            <!-- Row 3 -->
+            <button data-number="4" class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">4</button>
+            <button data-number="5" class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">5</button>
+            <button data-number="6" class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">6</button>
+            <button data-operator="-" class="calc-btn bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 font-semibold py-4 rounded-2xl text-xl border border-indigo-500/20">-</button>
+            
+            <!-- Row 4 -->
+            <button data-number="1" class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">1</button>
+            <button data-number="2" class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">2</button>
+            <button data-number="3" class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">3</button>
+            <button data-operator="+" class="calc-btn bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-400 font-semibold py-4 rounded-2xl text-xl border border-indigo-500/20">+</button>
+            
+            <!-- Row 5 -->
+            <button data-number="0" class="calc-btn col-span-2 bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">0</button>
+            <button data-number="." class="calc-btn bg-slate-800/50 hover:bg-slate-700/80 text-slate-200 font-medium py-4 rounded-2xl text-xl">.</button>
+            <button data-action="compute" class="calc-btn bg-gradient-to-br from-indigo-500 to-indigo-700 hover:from-indigo-400 hover:to-indigo-600 text-white shadow-lg shadow-indigo-500/30 font-semibold py-4 rounded-2xl text-2xl">=</button>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        /**
+         * Calculator Architecture
+         * Encapsulates state and business logic, decoupling it from the DOM.
+         */
+        class Calculator {
+            constructor(previousOperandElement, currentOperandElement) {
+                this.previousOperandElement = previousOperandElement;
+                this.currentOperandElement = currentOperandElement;
+                this.storageKey = 'elite_calc_state';
+                this.loadState();
+            }
+
+            clear() {
+                this.currentOperand = '0';
+                this.previousOperand = '';
+                this.operation = undefined;
+                this.saveState();
+            }
+
+            delete() {
+                if (this.currentOperand === '0') return;
+                this.currentOperand = this.currentOperand.toString().slice(0, -1);
+                if (this.currentOperand === '') this.currentOperand = '0';
+                this.saveState();
+            }
+
+            appendNumber(number) {
+                if (number === '.' && this.currentOperand.includes('.')) return;
+                if (this.currentOperand === '0' && number !== '.') {
+                    this.currentOperand = number.toString();
+                } else {
+                    this.currentOperand = this.currentOperand.toString() + number.toString();
+                }
+                this.saveState();
+            }
+
+            chooseOperation(operation) {
+                if (this.currentOperand === '0' && this.previousOperand === '') return;
+                if (this.previousOperand !== '') {
+                    this.compute();
+                }
+                this.operation = operation;
+                this.previousOperand = this.currentOperand;
+                this.currentOperand = '0';
+                this.saveState();
+            }
+
+            compute() {
+                let computation;
+                const prev = parseFloat(this.previousOperand);
+                const current = parseFloat(this.currentOperand);
+                
+                if (isNaN(prev) || isNaN(current)) return;
+
+                switch (this.operation) {
+                    case '+': computation = prev + current; break;
+                    case '-': computation = prev - current; break;
+                    case '×': computation = prev * current; break;
+                    case '÷': 
+                        computation = current === 0 ? 'Error' : prev / current; 
+                        break;
+                    default: return;
+                }
+
+                this.currentOperand = computation.toString();
+                this.operation = undefined;
+                this.previousOperand = '';
+                this.saveState();
+            }
+
+            getDisplayNumber(number) {
+                if (number === 'Error') return number;
+                const stringNumber = number.toString();
+                const integerDigits = parseFloat(stringNumber.split('.')[0]);
+                const decimalDigits = stringNumber.split('.')[1];
+                
+                let integerDisplay;
+                if (isNaN(integerDigits)) {
+                    integerDisplay = '0';
+                } else {
+                    integerDisplay = integerDigits.toLocaleString('en', { maximumFractionDigits: 0 });
+                }
+
+                if (decimalDigits != null) {
+                    return `${integerDisplay}.${decimalDigits}`;
+                } else {
+                    return integerDisplay;
+                }
+            }
+
+            updateDisplay() {
+                this.currentOperandElement.innerText = this.getDisplayNumber(this.currentOperand);
+                if (this.operation != null) {
+                    this.previousOperandElement.innerHTML = `
+                        ${this.getDisplayNumber(this.previousOperand)} 
+                        <span class="text-indigo-400 ml-1">${this.operation}</span>
+                    `;
+                } else {
+                    this.previousOperandElement.innerText = '';
+                }
+            }
+
+            // --- Persistence Layer ---
+            saveState() {
+                const state = {
+                    currentOperand: this.currentOperand,
+                    previousOperand: this.previousOperand,
+                    operation: this.operation
+                };
+                try {
+                    localStorage.setItem(this.storageKey, JSON.stringify(state));
+                } catch (e) {
+                    console.warn("Storage quota exceeded or unavailable.", e);
+                }
+                this.updateDisplay();
+            }
+
+            loadState() {
+                try {
+                    const savedState = JSON.parse(localStorage.getItem(this.storageKey));
+                    if (savedState) {
+                        this.currentOperand = savedState.currentOperand || '0';
+                        this.previousOperand = savedState.previousOperand || '';
+                        this.operation = savedState.operation;
+                        return;
+                    }
+                } catch (e) {
+                    console.warn("Corrupted state found in localStorage. Resetting.", e);
+                }
+                // Fallback state if no valid storage is found
+                this.clear();
+            }
+        }
+
+        // Initialization & DOM Binding
+        document.addEventListener('DOMContentLoaded', () => {
+            const previousOperandTextElement = document.getElementById('previous-operand');
+            const currentOperandTextElement = document.getElementById('current-operand');
+            const keypad = document.getElementById('keypad');
+
+            const calculator = new Calculator(previousOperandTextElement, currentOperandTextElement);
+            calculator.updateDisplay(); // Trigger initial render from storage
+
+            // Event Delegation for Performance (O(1) listener vs O(n) listeners)
+            keypad.addEventListener('click', (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
+
+                if (target.dataset.number !== undefined) {
+                    calculator.appendNumber(target.dataset.number);
+                }
+                if (target.dataset.operator !== undefined) {
+                    calculator.chooseOperation(target.dataset.operator);
+                }
+                if (target.dataset.action === 'clear') {
+                    calculator.clear();
+                }
+                if (target.dataset.action === 'delete') {
+                    calculator.delete();
+                }
+                if (target.dataset.action === 'compute') {
+                    calculator.compute();
+                }
+            });
+
+            // Keyboard Accessibility bindings
+            document.addEventListener('keydown', (e) => {
+                if (e.key >= 0 && e.key <= 9 || e.key === '.') {
+                    calculator.appendNumber(e.key);
+                }
+                if (e.key === '=' || e.key === 'Enter') {
+                    e.preventDefault(); // Prevent default Enter behavior (button click)
+                    calculator.compute();
+                }
+                if (e.key === 'Backspace') {
+                    calculator.delete();
+                }
+                if (e.key === 'Escape') {
+                    calculator.clear();
+                }
+                if (e.key === '+' || e.key === '-') {
+                    calculator.chooseOperation(e.key);
+                }
+                if (e.key === '*' || e.key === 'x') {
+                    calculator.chooseOperation('×');
+                }
+                if (e.key === '/') {
+                    e.preventDefault(); // Prevent Firefox quick-search
+                    calculator.chooseOperation('÷');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
