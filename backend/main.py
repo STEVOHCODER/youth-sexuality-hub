@@ -256,15 +256,16 @@ def health_check():
     return {"status": "ok", "version": "1.0.0", "uptime": "99.9%"}
 
 from pydantic import BaseModel
+
 class UserCreate(BaseModel):
     email: str
     password: str
-    name: str = None
+    name: Optional[str] = None
 
 class UserResponse(BaseModel):
     id: int
     email: str
-    name: str = None
+    name: Optional[str] = None
 
 class TokenResponse(BaseModel):
     access_token: str
@@ -324,6 +325,11 @@ def login(user: UserCreate, db: Session = Depends(get_db)):
         "token_type": "bearer",
         "user": {"id": db_user.id, "email": db_user.email, "name": db_user.name}
     }
+
+@app.post("/api/auth/google")
+def google_login(data: dict, db: Session = Depends(get_db)):
+    """Google OAuth login endpoint (placeholder for future implementation)"""
+    raise HTTPException(status_code=501, detail="Google login coming soon. Use email/password for now.")
 
 # ---------------------------------
 

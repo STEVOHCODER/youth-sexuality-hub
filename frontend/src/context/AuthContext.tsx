@@ -38,19 +38,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, password: string) => {
     setLoading(true);
+    const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/login`;
+    console.log('Calling login endpoint:', apiUrl);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/auth/login`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
       });
 
-      if (!response.ok) throw new Error('Login failed');
+      console.log('Response status:', response.status);
+      
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Login error response:', error);
+        throw new Error(error.detail || 'Login failed');
+      }
 
       const data = await response.json();
+      console.log('Login response data:', data);
       localStorage.setItem('auth_token', data.access_token);
       localStorage.setItem('user_data', JSON.stringify(data.user));
       setUser(data.user);
+    } catch (err) {
+      console.error('Login catch error:', err);
+      throw err;
     } finally {
       setLoading(false);
     }
@@ -58,19 +70,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (email: string, password: string, name?: string) => {
     setLoading(true);
+    const apiUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/register`;
+    console.log('Calling register endpoint:', apiUrl);
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/auth/register`, {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name }),
       });
 
-      if (!response.ok) throw new Error('Registration failed');
+      console.log('Response status:', response.status);
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Register error response:', error);
+        throw new Error(error.detail || 'Registration failed');
+      }
 
       const data = await response.json();
+      console.log('Register response data:', data);
       localStorage.setItem('auth_token', data.access_token);
       localStorage.setItem('user_data', JSON.stringify(data.user));
       setUser(data.user);
+    } catch (err) {
+      console.error('Register catch error:', err);
+      throw err;
     } finally {
       setLoading(false);
     }

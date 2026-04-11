@@ -17,11 +17,15 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
     e.preventDefault();
     setError('');
     setLoading(true);
+    console.log('Login attempt with:', { email, password });
 
     try {
       await login(email, password);
+      console.log('Login successful!');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Login failed. Please try again.');
+      const errorMsg = err instanceof Error ? err.message : 'Login failed. Please try again.';
+      console.error('Login error:', errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -106,12 +110,14 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToRegister }) => {
             <div className="flex-1 border-t border-[#30363d]"></div>
           </div>
 
-          {/* Google Login (Placeholder) */}
+          {/* Google Login (Coming Soon) */}
           <button
             type="button"
-            className="w-full border border-[#30363d] bg-[#161b22] text-[#c9d1d9] font-bold py-3 rounded-xl hover:border-[#29d8a8]/50 hover:bg-[#29d8a8]/5 transition-all uppercase text-sm tracking-wider"
+            disabled
+            className="w-full border border-[#30363d] bg-[#161b22]/50 text-[#6b7fa8] font-bold py-3 rounded-xl opacity-50 cursor-not-allowed uppercase text-sm tracking-wider"
+            title="Google login coming soon"
           >
-            Continue with Google
+            Continue with Google (Coming Soon)
           </button>
 
           {/* Register Link */}

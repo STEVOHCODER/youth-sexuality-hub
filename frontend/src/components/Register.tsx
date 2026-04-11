@@ -18,6 +18,7 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    console.log('Register attempt with:', { email, name, password });
 
     if (password !== confirmPassword) {
       setError('Passwords do not match');
@@ -33,8 +34,11 @@ export const Register: React.FC<RegisterProps> = ({ onSwitchToLogin }) => {
 
     try {
       await register(email, password, name);
+      console.log('Registration successful!');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+      const errorMsg = err instanceof Error ? err.message : 'Registration failed. Please try again.';
+      console.error('Registration error:', errorMsg);
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
