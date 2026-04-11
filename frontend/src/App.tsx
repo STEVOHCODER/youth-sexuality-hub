@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Send, Bot, PlusCircle, PanelLeftOpen, PanelRightOpen, Copy, Check, Sparkles, X, Layout, ChevronRight, MessageSquare, Trash2, Library, AlertCircle, Activity, ShieldCheck, MoreVertical, Calendar as CalendarIcon, Heart, User } from 'lucide-react';
+import { Send, Bot, PlusCircle, PanelLeftOpen, PanelRightOpen, Copy, Check, X, Layout, MessageSquare, Trash2, Library, MoreVertical, Calendar as CalendarIcon, Heart, LogOut } from 'lucide-react';
 
 import ReactMarkdown from 'react-markdown';
 import rehypeHighlight from 'rehype-highlight';
@@ -7,6 +7,9 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'highlight.js/styles/tokyo-night-dark.css';
 import 'katex/dist/katex.min.css';
+import { useAuth } from './context/AuthContext';
+import { Login } from './components/Login';
+import { Register } from './components/Register';
 
 const ProjectMenu = ({ onRename, onDelete }: any) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -125,6 +128,9 @@ const PeriodView = ({ entries, onAdd }: any) => {
 };
 
 export default function App() {
+  const { isAuthenticated, loading, logout, user } = useAuth();
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  
   const [sessions, setSessions] = useState<any[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [messages, setMessages] = useState<any[]>([]);
@@ -143,7 +149,6 @@ export default function App() {
   const [newPeriod, setNewPeriod] = useState({ start_date: '', intensity: 'medium', notes: '' });
   
   const [isAiTyping, setIsAiTyping] = useState(false);
-  const [collaboratorCount, setCollaboratorCount] = useState(0);
 
   useEffect(() => {
     const saved = localStorage.getItem('youth_hub_v2');
@@ -281,6 +286,27 @@ export default function App() {
 
   const copyText = (text: string, id: string) => { navigator.clipboard.writeText(text); setCopiedId(id); setTimeout(() => setCopiedId(null), 2000); };
 
+  // Show loading while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[#0a0c10] to-[#161b22] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-[#30363d] border-t-[#29d8a8] rounded-full animate-spin"></div>
+          <p className="text-[#6b7fa8] font-medium">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show auth screens if not authenticated
+  if (!isAuthenticated) {
+    return authMode === 'login' ? (
+      <Login onSwitchToRegister={() => setAuthMode('register')} />
+    ) : (
+      <Register onSwitchToLogin={() => setAuthMode('login')} />
+    );
+  }
+
   return (
     <div className="flex h-screen w-screen bg-[#0a0c10] text-[#c9d1d9] font-['Inter',sans-serif] overflow-hidden antialiased">
       <div className={"shrink-0 transition-all duration-500 bg-[#0d1117] border-r border-[#30363d] flex flex-col z-30 " + (isSidebarOpen ? 'w-72' : 'w-0 overflow-hidden opacity-0')}>
@@ -312,6 +338,12 @@ export default function App() {
           <div className="flex items-center gap-3">
              <button onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)} className="flex items-center gap-2 px-4 py-2 bg-[#161b22] border border-[#30363d] rounded-full text-[9px] font-black text-[#c9d1d9] hover:bg-[#30363d] transition-all uppercase tracking-widest shadow-xl">
                 {isWorkspaceOpen ? <><PanelRightOpen size={14} /> Hide Trackers</> : <><Layout size={14} /> Show Trackers</>}
+             </button>
+             <div className="flex items-center gap-2 px-3 py-2 bg-[#161b22] border border-[#30363d] rounded-full text-[9px] font-bold text-[#6b7fa8]">
+               {user?.email}
+             </div>
+             <button onClick={logout} className="flex items-center gap-2 px-4 py-2 bg-red-500/10 border border-red-500/30 rounded-full text-[9px] font-black text-red-400 hover:bg-red-500/20 transition-all uppercase tracking-widest shadow-xl">
+                <LogOut size={14} /> Logout
              </button>
           </div>
         </header>

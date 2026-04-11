@@ -100,6 +100,7 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
+    name = Column(String, nullable=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -258,6 +259,17 @@ from pydantic import BaseModel
 class UserCreate(BaseModel):
     email: str
     password: str
+    name: str = None
+
+class UserResponse(BaseModel):
+    id: int
+    email: str
+    name: str = None
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
 
 class Token(BaseModel):
     access_token: str
@@ -288,22 +300,30 @@ def create_access_token(data: dict):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
-@app.post("/api/auth/register", response_model=Token)
+@app.post("/api/auth/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user: raise HTTPException(status_code=400, detail="Email already registered")
-    new_user = User(email=user.email, hashed_password=get_password_hash(user.password))
+    new_user = User(email=user.email, name=user.name, hashed_password=get_password_hash(user.password))
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return {"access_token": create_access_token(data={"sub": new_user.email}), "token_type": "bearer"}
+    return {
+        "access_token": create_access_token(data={"sub": new_user.email}),
+        "token_type": "bearer",
+        "user": {"id": new_user.id, "email": new_user.email, "name": new_user.name}
+    }
 
-@app.post("/api/auth/login", response_model=Token)
+@app.post("/api/auth/login")
 def login(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if not db_user or not verify_password(user.password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect email or password")
-    return {"access_token": create_access_token(data={"sub": db_user.email}), "token_type": "bearer"}
+    return {
+        "access_token": create_access_token(data={"sub": db_user.email}),
+        "token_type": "bearer",
+        "user": {"id": db_user.id, "email": db_user.email, "name": db_user.name}
+    }
 
 # ---------------------------------
 
