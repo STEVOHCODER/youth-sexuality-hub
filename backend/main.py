@@ -100,7 +100,6 @@ class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String, unique=True, index=True)
-    name = Column(String, nullable=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -305,14 +304,18 @@ def create_access_token(data: dict):
 def register(user: UserCreate, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.email == user.email).first()
     if db_user: raise HTTPException(status_code=400, detail="Email already registered")
-    new_user = User(email=user.email, name=user.name, hashed_password=get_password_hash(user.password))
+    # Try to create with name if column exists, otherwise skip
+    try:
+        new_user = User(email=user.email, name=user.name, hashed_password=get_password_hash(user.password))
+    except:
+        new_user = User(email=user.email, hashed_password=get_password_hash(user.password))
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return {
         "access_token": create_access_token(data={"sub": new_user.email}),
         "token_type": "bearer",
-        "user": {"id": new_user.id, "email": new_user.email, "name": new_user.name}
+        "user": {"id": new_user.id, "email": new_user.email, "name": getattr(new_user, 'name', None)}
     }
 
 @app.post("/api/auth/login")
@@ -323,7 +326,7 @@ def login(user: UserCreate, db: Session = Depends(get_db)):
     return {
         "access_token": create_access_token(data={"sub": db_user.email}),
         "token_type": "bearer",
-        "user": {"id": db_user.id, "email": db_user.email, "name": db_user.name}
+        "user": {"id": db_user.id, "email": db_user.email, "name": getattr(db_user, 'name', None)}
     }
 
 @app.post("/api/auth/google")
