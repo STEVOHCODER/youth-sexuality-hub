@@ -1,8 +1,16 @@
 # 🚀 Quick Deploy Reference
 
+## 🟢 CURRENTLY RUNNING ✅
+
+- **Backend:** http://localhost:8000 (running on port 8000)
+- **Frontend:** http://localhost:5175 (running on port 5175)
+- **Auth:** ✅ Working - Test credentials:
+  - Email: `test@example.com`
+  - Password: `password123`
+
 ## ✅ Status
 - **Frontend Build:** ✅ PASSING (0 TypeScript errors)
-- **Auth System:** ✅ READY
+- **Auth System:** ✅ FULLY WORKING
 - **Mobile Responsive:** ✅ READY
 - **Deployment Ready:** ✅ YES
 
