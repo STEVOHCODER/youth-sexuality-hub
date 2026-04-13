@@ -32,7 +32,6 @@ try: from youtube_transcript_api import YouTubeTranscriptApi
 except ImportError: YouTubeTranscriptApi = None
 try: from pypdf import PdfReader
 except ImportError: PdfReader = None
-
 GEMINI_KEY = ""
 env_path = Path(__file__).parent / ".env"
 if env_path.exists():
@@ -45,7 +44,10 @@ app = FastAPI(title="YouthSexualityHub - AI Consultant & Educator")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:5173",
+        "https://youth-sexuality-hub-frontend.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
