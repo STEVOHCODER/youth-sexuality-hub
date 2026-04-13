@@ -77,12 +77,15 @@ session_knowledge: Dict[str, str] = {}
 session_sources: Dict[str, List[str]] = {}
 
 active_servers: Dict[str, subprocess.Popen] = {}
-
 import redis
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 # --- ENTERPRISE DATABASE SETUP ---
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./autodev_enterprise.db")
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {})
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 from sqlalchemy.orm import DeclarativeBase
@@ -152,16 +155,19 @@ class PeriodTracker(Base):
 
 class SymptomLog(Base):
     __tablename__ = "symptom_logs"
+
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String, index=True)
     log_date = Column(DateTime, default=datetime.utcnow)
     mood = Column(String)
-    energy = Column(Integer) # 1-10
-    symptoms = Column(String) # comma separated
+    energy = Column(Integer)  # 1-10
+    symptoms = Column(String)  # comma separated
     notes = Column(String, nullable=True)
 
-Base.metadata.create_all(bind=engine)
 
+@app.on_event("startup")
+def startup():
+    Base.metadata.create_all(bind=engine)
 def get_db():
 # ... (existing get_db)
 
