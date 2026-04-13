@@ -742,12 +742,12 @@ async def register(user: UserCreate, db: Session = Depends(get_db)):
             )
         
         # Create new user
-   new_user = User(
-    email=user.email,
-    name=user.name,
-    hashed_password=get_password_hash(user.password),
-    is_active=True
-)
+        new_user = User(
+            email=user.email,
+            name=user.name,
+            hashed_password=get_password_hash(user.password),
+            is_active=True
+        )
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
