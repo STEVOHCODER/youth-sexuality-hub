@@ -21,3 +21,6 @@ sqlalchemy
 psycopg2-binary
 prometheus-fastapi-instrumentator
 stripe
+redis
+psycopg2-binary
+tiktoken
