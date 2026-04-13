@@ -46,6 +46,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
+        "https://youth-sexuality-hub-frontend-2ba34uhfr.vercel.app",
         "https://youth-sexuality-hub-frontend.vercel.app"
     ],
     allow_credentials=True,
