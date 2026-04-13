@@ -87,6 +87,9 @@ from sqlalchemy.orm import sessionmaker
 # --- ENTERPRISE DATABASE SETUP ---
 DATABASE_URL = os.getenv("DATABASE_URL")
 
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL is not set")
+
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -171,11 +174,11 @@ class SymptomLog(Base):
 def startup():
     Base.metadata.create_all(bind=engine)
 def get_db():
-# ... (existing get_db)
-
     db = SessionLocal()
-    try: yield db
-    finally: db.close()
+    try:
+        yield db
+    finally:
+        db.close()
 
 # Calendar API Endpoints
 class CalendarEventCreate(BaseModel):
