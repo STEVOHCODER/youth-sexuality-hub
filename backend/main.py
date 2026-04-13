@@ -77,12 +77,15 @@ session_knowledge: Dict[str, str] = {}
 session_sources: Dict[str, List[str]] = {}
 
 active_servers: Dict[str, subprocess.Popen] = {}
-
 import redis
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 
 # --- ENTERPRISE DATABASE SETUP ---
-DATABASE_URL = os.environ.get("DATABASE_URL", "sqlite:///./autodev_enterprise.db")
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {})
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 from sqlalchemy.orm import DeclarativeBase
