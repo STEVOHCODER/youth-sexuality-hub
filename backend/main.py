@@ -155,16 +155,19 @@ class PeriodTracker(Base):
 
 class SymptomLog(Base):
     __tablename__ = "symptom_logs"
+
     id = Column(Integer, primary_key=True, index=True)
     session_id = Column(String, index=True)
     log_date = Column(DateTime, default=datetime.utcnow)
     mood = Column(String)
-    energy = Column(Integer) # 1-10
-    symptoms = Column(String) # comma separated
+    energy = Column(Integer)  # 1-10
+    symptoms = Column(String)  # comma separated
     notes = Column(String, nullable=True)
 
-Base.metadata.create_all(bind=engine)
 
+@app.on_event("startup")
+def startup():
+    Base.metadata.create_all(bind=engine)
 def get_db():
 # ... (existing get_db)
 
