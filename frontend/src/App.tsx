@@ -218,6 +218,9 @@ const PeriodView = ({ entries, onAdd }: any) => {
 export default function App() {
   const { isAuthenticated, loading, logout, user } = useAuth();
 
+  // 🔥 FIX ADDED: AUTH MODE CONTROL (THIS FIXES YOUR CLICK ISSUE)
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+
   const [sessions, setSessions] = useState<any[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string>('');
   const [messages, setMessages] = useState<any[]>([]);
@@ -294,12 +297,15 @@ export default function App() {
 
   if (loading) return <div className="p-10 text-white">Loading...</div>;
 
-  if (!isAuthenticated)
-    return <Login onSwitchToRegister={() => {}} />;
+  // 🔥 FIXED AUTH SWITCHING LOGIC
+  if (!isAuthenticated) {
+    return authMode === 'login'
+      ? <Login onSwitchToRegister={() => setAuthMode('register')} />
+      : <Register onSwitchToLogin={() => setAuthMode('login')} />;
+  }
 
   return (
     <div className="flex h-screen w-screen bg-[#0a0c10] text-white">
-      {/* MAIN UI CONTINUED EXACTLY FULL STRUCTURE PRESERVED */}
       <div className="flex-1 flex flex-col">
         <div className="flex-1 overflow-y-auto p-10">
           {messages.map((m, i) => (
